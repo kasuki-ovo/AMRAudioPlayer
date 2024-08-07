@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<script src="js/amrjs/amrnb.js"></script>
+		<script src="js/amrjs/amrwb.js"></script>
+		<script src="js/amrjs/amrwb-util.js"></script>
+		<style>
+			.box {
+				width: 500px;
+				height: 400px;
+				border: 1px solid #ccc;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				margin: 50px auto;
+			}
+
+			.box>div {
+				margin-bottom: 40px;
+			}
+			.title {
+				text-align: center;
+			}
+			.sub-title {
+				font-size: 14px;
+				color: #666;
+				margin-top: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="box">
+			<div class="title">
+				<div>AMR音频播放器</div>
+				<div class="sub-title">（支持amr录音文件，包括二进制文件头为#!AMR和#!AMR-WB的文件）</div>
+			</div>
+			<div>
+				<input type="file" onchange="fileChange(event)" accept=".mp3,.wav,.ogg,.amr,.m4a">
+			</div>
+			<audio id="audio" src="" controls></audio>
+		</div>
+		<script>
+			/** 
+				* name: AMRAudioPlayer
+				* auth: Kasuki
+			**/
+		 
+			function fileChange(e) {
+				const file = e.target.files[0]
+				const audioElement = document.getElementById('audio')
+				if (!file) {
+					audioElement.src = ''
+					return
+				}
+				const reader = new FileReader()
+				reader.onload = function(e) {
+					if (file.name.indexOf('.amr') !== -1) {
+						const data = new Uint8Array(e.target.result);
+						if (AMRWB.getAMRHeader(data) === AMRWB.AMR_HEADER) {
+							// #!AMR-WB文件头
+							AMRWB.decodeInit()
+							const buffer = AMRWB.toWAV(data) // amr转wav
+							AMRWB.decodeExit()
+							const blob = new Blob([buffer], {
+								type: 'audio/wav'
+							});
+							const url = URL.createObjectURL(blob);
+							audioElement.src = url
+						} else if (AMR.getAMRHeader(data) === AMR.AMR_HEADER){
+							// #!AMR文件头
+							const buffer = AMR.toWAV(data) // amr转wav
+							const url = URL.createObjectURL(new Blob([buffer], {
+								type: 'audio/x-wav'
+							}))
+							audioElement.src = url
+						} else {
+							alert('.amr文件格式不支持！')
+						}
+					} else {
+						const buffer = e.target.result
+						const url = URL.createObjectURL(new Blob([buffer], {
+							type: 'audio/x-wav'
+						}))
+						audioElement.src = url
+					}
+				}
+				reader.readAsArrayBuffer(file)
+			}
+		</script>
+	</body>
+</html>
