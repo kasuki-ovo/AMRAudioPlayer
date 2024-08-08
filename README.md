@@ -1,7 +1,7 @@
 # AMRAudioPlayer
 
 #### 介绍
-* AMR音频播放器demo
+AMR音频播放器demo
 * amr文件在<audio/>标签播放的解决方案，包括二进制文件头为#!AMR和#!AMR-WB的amr文件
 
 #### 软件架构
