@@ -58,26 +58,25 @@
 				const reader = new FileReader()
 				reader.onload = function(e) {
 					if (file.name.indexOf('.amr') !== -1) {
-						const data = new Uint8Array(e.target.result);
+						const data = new Uint8Array(e.target.result)
 						if (AMRWB.getAMRHeader(data) === AMRWB.AMR_HEADER) {
 							// #!AMR-WB文件头
 							AMRWB.decodeInit()
 							const buffer = AMRWB.toWAV(data) // amr转wav
 							AMRWB.decodeExit()
-							const blob = new Blob([buffer], {
+							const url = URL.createObjectURL(new Blob([buffer], {
 								type: 'audio/wav'
-							});
-							const url = URL.createObjectURL(blob);
+							}))
 							audioElement.src = url
 						} else if (AMR.getAMRHeader(data) === AMR.AMR_HEADER){
 							// #!AMR文件头
 							const buffer = AMR.toWAV(data) // amr转wav
 							const url = URL.createObjectURL(new Blob([buffer], {
-								type: 'audio/x-wav'
+								type: 'audio/wav'
 							}))
 							audioElement.src = url
 						} else {
-							alert('.amr文件格式不支持！')
+							alert('文件格式不支持！')
 						}
 					} else {
 						const buffer = e.target.result
